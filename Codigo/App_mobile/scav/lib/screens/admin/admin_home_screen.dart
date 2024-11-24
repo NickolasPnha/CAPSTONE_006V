@@ -23,7 +23,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int departamento = 0;
   int multasUltimoMes = 0;
   int visitasRegistradas = 0;
-  
+
   List<dynamic> bitacoras = [];
   List<dynamic> filteredBitacoras = [];
   bool isLoading = true;
@@ -53,7 +53,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       try {
         Map<String, dynamic> payload = Jwt.parseJwt(token);
         setState(() {
-          nombreCompleto = '${payload['nombre'] ?? 'Sin Nombre'} ${payload['apellido'] ?? 'Sin Apellido'}';
+          nombreCompleto =
+              '${payload['nombre'] ?? 'Sin Nombre'} ${payload['apellido'] ?? 'Sin Apellido'}';
           torre = payload['torre'] ?? 0;
           departamento = payload['departamento'] ?? 0;
         });
@@ -93,8 +94,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
-  
-
   void _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');
@@ -104,11 +103,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void _filterBitacoras(String query) {
     setState(() {
       filteredBitacoras = bitacoras
-          .where((bitacora) =>
-              bitacora['vehiculo']['patente']
-                  .toString()
-                  .toLowerCase()
-                  .contains(query.toLowerCase()))
+          .where((bitacora) => bitacora['vehiculo']['patente']
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()))
           .toList();
       currentPage = 0;
     });
@@ -184,22 +182,35 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         _filteredMultas = _multas;
       });
     } else {
-      print('Error al cargar las multas. Código de estado: ${response.statusCode}');
+      print(
+          'Error al cargar las multas. Código de estado: ${response.statusCode}');
       print('Respuesta del servidor: ${response.body}');
     }
   }
 
   void _filterMultas(String patente) {
     setState(() {
-      _filteredMultas = _multas.where((multa) => multa['bitacora']['vehiculo']['patente'].contains(patente)).toList();
+      _filteredMultas = _multas
+          .where((multa) =>
+              multa['bitacora']['vehiculo']['patente'].contains(patente))
+          .toList();
       _currentPage = 0;
     });
   }
 
   List<dynamic> _getPaginatedMultas() {
-    final start = _currentPage * _pageSize;
-    final end = start + _pageSize;
-    return _filteredMultas.sublist(start, end > _filteredMultas.length ? _filteredMultas.length : end);
+    // Tamaño fijo para la cantidad de elementos por página
+    final int pageSize = 4;
+
+    // Calcula el índice de inicio y fin basado en la página actual
+    final start = _currentPage * pageSize;
+    final end = start + pageSize;
+
+    // Retorna un subconjunto de la lista, ajustando el límite para evitar errores
+    return _filteredMultas.sublist(
+      start,
+      end > _filteredMultas.length ? _filteredMultas.length : end,
+    );
   }
 
   @override
@@ -277,7 +288,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
-   Widget _buildBitacoraCard() {
+  Widget _buildBitacoraCard() {
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -287,7 +298,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
     return Card(
       margin: EdgeInsets.all(16),
-      elevation: 5,
+      elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -298,65 +309,210 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Registros de Bitácora',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold),
                 ),
-                IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: _fetchBitacoras,
+                GestureDetector(
+                  onTap: _fetchBitacoras, // Acción del botón
+                  child: Container(
+                    width: 40, // Ancho del círculo
+                    height: 40, // Altura del círculo
+                    decoration: const BoxDecoration(
+                      color: Colors.blue, // Color de fondo azul
+                      shape: BoxShape.circle, // Forma circular
+                    ),
+                    child: const Icon(
+                      Icons.refresh,
+                      color: Colors.white, // Color del icono
+                      size: 32, // Tamaño del icono
+                    ),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                labelText: 'Buscar por Patente',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.search),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // Fondo blanco para el buscador
+                borderRadius: BorderRadius.circular(12), // Bordes redondeados
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), // Color de la sombra
+                    blurRadius: 10, // Desenfoque de la sombra
+                    offset: const Offset(0, 4), // Desplazamiento de la sombra
+                  ),
+                ],
               ),
-              onChanged: _filterBitacoras,
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  labelText: 'Buscar por Patente',
+                  labelStyle:
+                      TextStyle(color: Colors.grey[600]), // Estilo del texto
+                  border: InputBorder.none, // Elimina el borde predeterminado
+                  prefixIcon: const Icon(Icons.search,
+                      color: Colors.blue), // Ícono de búsqueda
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 5, horizontal: 10), // Espaciado interno
+                ),
+                onChanged: _filterBitacoras,
+              ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columnSpacing: 10,
+                headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.blue.shade100),
+                dataRowColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.white), // Fondo de las filas
+                columnSpacing: 20,
+                headingTextStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.blue.shade900,
+                ),
+                dataTextStyle: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
                 columns: const [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Fecha Entrada')),
-                  DataColumn(label: Text('Fecha Salida')),
                   DataColumn(label: Text('Patente')),
+                  DataColumn(
+                    label: Text(
+                      'Fecha\nEntrada',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Hora\nEntrada',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Hora\nSalida',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   DataColumn(label: Text('Tipo')),
                 ],
                 rows: _getCurrentPageItems().map((bitacora) {
                   final vehiculo = bitacora['vehiculo'];
                   final esVisita = vehiculo['visita'] != null;
-                  return DataRow(cells: [
-                    DataCell(Text(bitacora['id'].toString())),
-                    DataCell(Text(bitacora['fechain'] ?? 'N/A')),
-                    DataCell(Text(bitacora['fechaout'] ?? 'N/A')),
-                    DataCell(Text(vehiculo['patente'])),
-                    DataCell(Text(esVisita ? 'VISITA' : 'RESIDENTE')),
-                  ]);
+
+                  // Función para formatear fecha (YY-MM-DD)
+                  String formatFecha(String? fecha) {
+                    if (fecha == null || fecha.isEmpty) return 'N/A';
+                    try {
+                      final parsedDate = DateTime.parse(fecha);
+                      return '${parsedDate.year.toString().substring(2)}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}';
+                    } catch (e) {
+                      return 'N/A';
+                    }
+                  }
+
+                  // Función para extraer hora (HH:MM)
+                  String formatHora(String? fecha) {
+                    if (fecha == null || fecha.isEmpty) return 'N/A';
+                    try {
+                      final parsedDate = DateTime.parse(fecha);
+                      return '${parsedDate.hour.toString().padLeft(2, '0')}:${parsedDate.minute.toString().padLeft(2, '0')}';
+                    } catch (e) {
+                      return 'N/A';
+                    }
+                  }
+
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(vehiculo['patente'])), // Patente
+                      DataCell(Text(
+                          formatFecha(bitacora['fechain']))), // Fecha Entrada
+                      DataCell(Text(
+                          formatHora(bitacora['fechain']))), // Hora Entrada
+                      DataCell(Text(
+                          formatHora(bitacora['fechaout']))), // Hora Salida
+
+                      DataCell(
+                        Row(
+                          children: [
+                            Container(
+                              width: 25, // Ancho del círculo
+                              height: 25, // Altura del círculo
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle, // Forma de círculo
+                                color: esVisita
+                                    ? Colors.orange
+                                    : Colors.green, // Color según el tipo
+                              ),
+                            ),
+                            const SizedBox(
+                                width:
+                                    8), // Espacio entre el círculo y el texto
+                            Text(
+                              esVisita ? 'VISITA' : 'RESIDENTE',
+                              style: TextStyle(
+                                color: esVisita
+                                    ? Colors.orange.shade800
+                                    : Colors.green.shade800,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 }).toList(),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: _previousPage,
-                  child: Text('Anterior'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Anterior',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 Text(
                   'Página ${currentPage + 1} de ${((filteredBitacoras.length - 1) / itemsPerPage).ceil() + 1}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton(
                   onPressed: _nextPage,
-                  child: Text('Siguiente'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Siguiente',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -367,68 +523,142 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildMantenedoresOptions() {
-  return Card(
-    margin: EdgeInsets.all(16),
-    elevation: 5,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
+      children: [
+        // Logo en la parte superior
+        Container(
+          margin: const EdgeInsets.only(
+              top: 10, bottom: 20), // Espaciado superior e inferior
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26, // Sombra suave
+                blurRadius: 60, // Difusión de la sombra
+                offset: Offset(0, 8), // Desplazamiento de la sombra
+              ),
+            ],
+          ),
+          child: Image.asset(
+            'assets/images/logo2.png',
+            height: 200, // Ajusta el tamaño del logo
+          ),
+        ),
+        // Card con las opciones de mantenedores
+        Card(
+          margin: const EdgeInsets.all(16),
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.blue.shade50], // Degradado suave
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Mantenedores',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildMantenedorTile(
+                    context,
+                    icon: Icons.person,
+                    label: 'Administrar Residentes',
+                    color: Colors.blue.shade700,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MantenedorResidenteForm()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _buildMantenedorTile(
+                    context,
+                    icon: Icons.group,
+                    label: 'Administrar Visitas',
+                    color: Colors.blue.shade700,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MantenedorVisitaForm()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _buildMantenedorTile(
+                    context,
+                    icon: Icons.directions_car,
+                    label: 'Administrar Vehículos',
+                    color: Colors.blue.shade700,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MantenedorVehiculoForm()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMantenedorTile(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required Color color,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
         children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1), // Fondo azul claro
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color, // Ícono azul
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
           Text(
-            'Mantenedores',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20),
-          ListTile(
-            leading: Icon(Icons.person, color: Colors.blue.shade700),
-            title: Text(
-              'Administrar Residentes',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            label,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MantenedorResidenteForm()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.group, color: Colors.blue.shade700),
-            title: Text(
-              'Administrar Visitas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MantenedorVisitaForm()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.directions_car, color: Colors.blue.shade700),
-            title: Text(
-              'Administrar Vehículos',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MantenedorVehiculoForm()),
-              );
-            },
           ),
         ],
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildMantenedorButton(
       BuildContext context, String entity, Widget formWidget, IconData icon) {
@@ -438,7 +668,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         icon: Icon(icon, size: 24, color: Colors.white),
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.blue.shade700,
         ),
         onPressed: () {
@@ -455,12 +686,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-
   Widget _buildUserInfoSection() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
       child: Column(
         children: [
+          // Card Principal
           Card(
             elevation: 10,
             shape: RoundedRectangleBorder(
@@ -471,79 +702,76 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Título
                   Text(
-                    nombreCompleto.toUpperCase(),
+                    'ADMINISTRACIÓN CONDOMINIO',
                     style: TextStyle(
-                      fontSize: 30,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Colors.blue.shade700,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      (torre == 0 && departamento == 0)
-                          ? 'Administración condominio'
-                          : 'Torre $torre, Departamento $departamento',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
+                  const SizedBox(height: 10),
+                  // Información adicional
+                  Text(
+                    'Administración condominio',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  // Botones de estadísticas (Multas y Visitas)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildInfoCard(Icons.warning, 'Multas', multasUltimoMes),
-                      _buildInfoCard(Icons.group, 'Visitas', visitasRegistradas),
+                      _buildInfoCard(
+                          Icons.group, 'Visitas', visitasRegistradas),
                     ],
                   ),
-                  SizedBox(height: 30),
-                  ListTile(
-                    leading: Icon(Icons.edit, color: Colors.blue.shade700),
-                    title: Text(
-                      'Editar información personal',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => EditPersonalInfoScreen()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.lock, color: Colors.blue.shade700),
-                    title: Text(
-                      'Cambiar contraseña',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  const SizedBox(height: 20),
+                  // Opciones
+                  _buildOptionTile(Icons.edit, 'Editar información personal',
+                      Colors.blue.shade700, () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditPersonalInfoScreen()),
+                    );
+                  }),
+                  _buildOptionTile(
+                      Icons.lock, 'Cambiar contraseña', Colors.blue.shade700,
+                      () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChangePasswordScreen()),
+                    );
+                  }),
+                  const SizedBox(height: 20),
+                  // Botón de Cerrar Sesión
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Color del botón
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Bordes redondeados
                       ),
-                      onPressed: _logout,
-                      child: Text(
-                        "Cerrar sesión",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 30),
+                      elevation: 10, // Altura de la sombra
+                      shadowColor: Colors.black.withOpacity(
+                          0.9), // Color y transparencia de la sombra
+                    ),
+                    onPressed: _logout, // Acción del botón
+                    child: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Color del texto
                       ),
                     ),
                   ),
@@ -551,32 +779,52 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
             ),
           ),
-          SizedBox(height: 20),
-          Card(
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Image.asset(
+          const SizedBox(height: 40),
+          // Card Secundario
+          Container(
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Logo con sombra blanca
+                Container(
+                  decoration: const BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white, // Sombra blanca
+                        blurRadius: 65, // Difuminado
+                        spreadRadius: 5, // Expansión de la sombra
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
                     'assets/images/logo_ta.png',
-                    height: 50,
+                    height: 90, // Tamaño del logo
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Desarrollado por TechApps',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 15),
+                // Texto principal
+                const Text(
+                  'Desarrollado por TechApps',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // Texto en blanco
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    'www.techapps.com',
-                    style: TextStyle(fontSize: 14, color: Colors.blueAccent),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 5),
+                // Enlace
+                const Text(
+                  'www.techapps.com',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.blue, // Texto en blanco
+                    decoration: TextDecoration.underline,
                   ),
-                ],
-              ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ],
@@ -584,174 +832,134 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
+// Tarjetas de Multas y Visitas con Estilo Circular
   Widget _buildInfoCard(IconData icon, String label, int count) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Container(
-        width: 100,
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Icon(icon, size: 30, color: Colors.blue.shade700),
-            SizedBox(height: 10),
-            Text(
-              '$count',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Container(
+      width: 100,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.blue.shade50,
+            child: Icon(
+              icon,
+              size: 30,
+              color: Colors.blue.shade700,
             ),
-            Text(
-              label,
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
-          ],
-        ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[700],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildAdminWelcomeCard() {
-  return Container(
-    width: MediaQuery.of(context).size.width * 0.9,
-    child: Card(
-      elevation: 10,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Bienvenido, Administrador!",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            Text(
-              "Aquí podrás gestionar las visitas y el acceso al centro, además de ver bitácoras y administrar datos.",
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[700],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: 200,
-              height: 100,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FormVisita1()),
-                  );
-                },
-                icon: Icon(Icons.add, color: Colors.white),
-                label: Text(
-                  'Registrar Visita',
-                  style: TextStyle(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding: EdgeInsets.all(16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-          ],
+// Opciones con Iconos y Texto
+  Widget _buildOptionTile(
+      IconData icon, String label, Color color, VoidCallback onTap) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: color.withOpacity(0.1),
+        child: Icon(
+          icon,
+          color: color,
         ),
       ),
-    ),
-  );
-}
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      ),
+      onTap: onTap,
+    );
+  }
 
-Widget _buildMultasSection() {
-    return Center(
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.9,
-        child: Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  Widget _buildAdminWelcomeCard() {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: Card(
+        elevation: 12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.white, Colors.blue.shade50],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(25),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Título
                 Text(
-                  'Multas Ultimo Mes',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _patenteController,
-                  decoration: InputDecoration(
-                    labelText: 'Buscar por Patente',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+                  "¡Bienvenido, Administrador!",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade800,
                   ),
-                  onChanged: (value) {
-                    _filterMultas(value);
-                  },
+                  textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 16),
-                _filteredMultas.isEmpty
-                    ? Center(child: Text('No hay multas registradas'))
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: _getPaginatedMultas().length,
-                        itemBuilder: (context, index) {
-                          final multa = _getPaginatedMultas()[index];
-                          final vehiculo = multa['bitacora']['vehiculo'];
-                          return ListTile(
-                            title: Text('Patente: ${vehiculo['patente']}'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Deuda Total: ${multa['totalDeuda']} UF'),
-                                Text('Fecha de Multa: ${multa['fechaMulta']}'),
-                                Text('Marca: ${vehiculo['marca']}, Modelo: ${vehiculo['modelo']}'),
-                              ],
-                            ),
-                          );
-                        },
+                const SizedBox(height: 15),
+                // Descripción
+                Text(
+                  "Aquí puedes gestionar las visitas, el acceso al centro, y administrar bitácoras de manera eficiente.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    height: 1.5, // Espaciado entre líneas
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 25),
+                // Botón
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FormVisita1()),
+                      );
+                    },
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    label: const Text(
+                      'Registrar Visita',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: _currentPage > 0
-                          ? () {
-                              setState(() {
-                                _currentPage--;
-                              });
-                            }
-                          : null,
                     ),
-                    Text('Página ${_currentPage + 1}'),
-                    IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      onPressed: (_currentPage + 1) * _pageSize < _filteredMultas.length
-                          ? () {
-                              setState(() {
-                                _currentPage++;
-                              });
-                            }
-                          : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      shadowColor: Colors.blue.shade200,
+                      elevation: 6,
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -761,6 +969,175 @@ Widget _buildMultasSection() {
     );
   }
 
+  Widget _buildMultasSection() {
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: Column(
+          children: [
+            // Título principal
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Multas Último Mes',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Buscador
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _patenteController,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar por Patente',
+                    prefixIcon: Icon(Icons.search, color: Colors.blue),
+                    border: InputBorder.none,
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+                  ),
+                  onChanged: (value) {
+                    _filterMultas(value);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Lista de multas paginada
+            _filteredMultas.isEmpty
+                ? const Center(child: Text('No hay multas registradas'))
+                : Column(
+                    children: _getPaginatedMultas().map((multa) {
+                      final vehiculo = multa['bitacora']['vehiculo'];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Patente
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Patente: ${vehiculo['patente']}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue.shade700,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.directions_car,
+                                      color: Colors.blue.shade300,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                // Detalles de multa
+                                Text(
+                                  'Deuda Total: ${multa['totalDeuda']} UF',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Fecha de Multa: ${multa['fechaMulta'].split('T')[0]}',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Marca: ${vehiculo['marca']}, Modelo: ${vehiculo['modelo']}',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+            const SizedBox(height: 20),
+            // Paginación
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: _currentPage > 0
+                      ? () {
+                          setState(() {
+                            _currentPage--;
+                          });
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'Anterior',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Text(
+                  'Página ${_currentPage + 1}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton(
+                  onPressed: (_currentPage + 1) * 4 < _filteredMultas.length
+                      ? () {
+                          setState(() {
+                            _currentPage++;
+                          });
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'Siguiente',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildRegistrarVisitaButton() {
     return ElevatedButton.icon(
@@ -781,6 +1158,4 @@ Widget _buildMultasSection() {
       ),
     );
   }
-
-
 }

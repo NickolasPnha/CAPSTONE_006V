@@ -22,8 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    print("Intentando iniciar sesión...");
-    print("Conectándose a $apiUrl");
     setState(() {
       _isLoading = true;
     });
@@ -43,9 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final String token = data['token'];
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('authToken', token);
-
+        await _storeToken(token);
 
         Map<String, dynamic> payload = Jwt.parseJwt(token);
         int userType = payload['role'];
@@ -57,7 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Credenciales incorrectas o error en el servidor")),
+          SnackBar(
+              content: Text("Credenciales incorrectas o error en el servidor")),
         );
       }
     } catch (e) {
@@ -75,10 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            // colors: [Colors.blue.shade800, Colors.blue.shade400],
-            colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
+            colors: [Color(0xFF0D47A1), Color(0xFF42A5F5)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -90,17 +86,45 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  // Logo de la aplicación
-                  Image.asset(
-                    'assets/images/logo2.png', // Ruta de la imagen
-                    height: 500,
+                  // Logo de la aplicación con sombra
+                  Container(
+                    decoration: const BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26, // Color de la sombra
+                          blurRadius: 70, // Difusión de la sombra
+                          offset: Offset(0, 9), // Desplazamiento de la sombra
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      'assets/images/logo2.png',
+                      height: 260,
+                    ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
+
                   // Tarjeta elevada para el formulario
-                  Card(
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(20), // Bordes redondeados
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF0D47A1), // Blanco en la parte superior
+                          Color(
+                              0xFF42A5F5), // Transparente en la parte inferior
+                        ],
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 4), // Sombra del contenedor
+                        ),
+                      ],
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -109,84 +133,115 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Column(
                         children: [
-                          Text(
+                          const Text(
                             "Bienvenido",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
+                              color: Colors.white,
                             ),
                           ),
-                           SizedBox(height: 10),
-                          // TextField con ancho limitado
+                          const SizedBox(height: 15),
                           ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 400),
+                            constraints: const BoxConstraints(maxWidth: 400),
                             child: TextField(
                               controller: _usernameController,
                               decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.person),
+                                filled: true, // Fondo sólido
+                                fillColor: Colors
+                                    .white, // Color blanco para las casillas
+                                prefixIcon: const Icon(Icons.person),
                                 labelText: "Usuario",
+                                labelStyle:
+                                    TextStyle(color: Colors.blue.shade700),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 400),
+                            constraints: const BoxConstraints(maxWidth: 400),
                             child: TextField(
                               controller: _passwordController,
                               decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.lock),
+                                filled: true, // Fondo sólido
+                                fillColor: Colors
+                                    .white, // Color blanco para las casillas
+                                prefixIcon: const Icon(Icons.lock),
                                 labelText: "Contraseña",
+                                labelStyle:
+                                    TextStyle(color: Colors.blue.shade700),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
                               ),
                               obscureText: true,
                             ),
                           ),
-                          SizedBox(height: 20), // Espaciado adicional entre contraseña y botón
+                          const SizedBox(height: 20),
                           _isLoading
-                              ? CircularProgressIndicator()
-                              : ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: 300),
+                              ? const CircularProgressIndicator()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(
+                                            0.9), // Sombra blanca intensa
+                                        blurRadius: 60, // Difusión de la sombra
+                                        spreadRadius:
+                                            10, // Expansión de la sombra
+                                        offset: Offset(0,
+                                            10), // Desplazamiento vertical de la sombra
+                                      ),
+                                    ],
+                                  ),
                                   child: SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade700,
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 22, 107, 192), // Fondo azul
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
                                         ),
-                                        padding: EdgeInsets.symmetric(vertical: 15),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 15),
                                       ),
                                       onPressed: _login,
-                                      child: Text(
+                                      child: const Text(
                                         "Iniciar Sesión",
                                         style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.white, // Cambia el color de la letra a blanco
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 15),
                           TextButton(
                             onPressed: () {
                               Navigator.pushNamed(context, '/recover_password');
                             },
-                            child: Text(
+                            child: const Text(
                               "¿Olvidaste tu contraseña?",
-                              style: TextStyle(color: Colors.blue.shade700),
+                              style: TextStyle(
+                                color: Colors.white, // Color del texto
+                                fontWeight: FontWeight.bold, // Negrita
+                                fontSize:
+                                    16, // Tamaño de la fuente (puedes ajustarlo según lo necesites)
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
