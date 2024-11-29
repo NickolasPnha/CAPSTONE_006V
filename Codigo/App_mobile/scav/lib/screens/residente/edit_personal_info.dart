@@ -108,7 +108,12 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Editar Información Personal"),
+        title: const Text(
+          "Editar Información Personal",
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+          ),),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -130,39 +135,39 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildReadOnlyField("ID", _idController),
                       _buildReadOnlyField("RUT", _rutController),
                       _buildReadOnlyField("Nombre", _nombreController),
                       _buildReadOnlyField("Apellido", _apellidoController),
                       _buildReadOnlyField("Torre", _torreController),
-                      _buildReadOnlyField("Departamento", _departamentoController),
-                      SizedBox(height: 20),
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: "Correo Electrónico",
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      SizedBox(height: 20),
+                      _buildReadOnlyField(
+                          "Departamento", _departamentoController),
+                      const SizedBox(height: 20),
+                      _buildEditableField(
+                          "Correo Electrónico", _emailController),
+                      const SizedBox(height: 20),
                       _isLoading
-                          ? Center(child: CircularProgressIndicator())
+                          ? const Center(child: CircularProgressIndicator())
                           : ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue.shade700,
-                                padding: EdgeInsets.symmetric(vertical: 15),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 15),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
+                                elevation: 10,
+                                shadowColor: Colors.black.withOpacity(0.2),
                               ),
                               onPressed: _updateEmail,
-                              child: Center(
-                                child: Text(
-                                  "Actualizar Correo",
-                                  style: TextStyle(fontSize: 18, color: Colors.white),
+                              child: const Text(
+                                "Actualizar Correo",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
@@ -178,16 +183,70 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   }
 
   Widget _buildReadOnlyField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: TextField(
         controller: controller,
         readOnly: true,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+          prefixIcon: Icon(
+            Icons.lock_outline,
+            color: Colors.blue.shade700,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         ),
+        style: const TextStyle(fontSize: 16, color: Colors.black87),
       ),
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildEditableField(String label, TextEditingController controller) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+          prefixIcon: Icon(
+            Icons.email_outlined,
+            color: Colors.blue.shade700,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        ),
+        style: const TextStyle(fontSize: 16, color: Colors.black87),
+        keyboardType: TextInputType.emailAddress,
+      ),
+    ),
+  );
+}
 }

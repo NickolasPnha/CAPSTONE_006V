@@ -417,7 +417,12 @@ class _RegisterVisitScreenState extends State<RegisterVisitScreen> {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('Registrar Visita'),
+      title: const Text(
+        'Registrar Visita',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
       backgroundColor: Colors.lightBlue.shade800,
     ),
     body: Container(

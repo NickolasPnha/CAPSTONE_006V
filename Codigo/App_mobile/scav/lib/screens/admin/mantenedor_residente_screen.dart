@@ -244,171 +244,220 @@ void _eliminarResidente(String username, int residenteId) async {
 
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Administrar Residentes"),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        "Administrar Residentes",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
+      backgroundColor: Colors.blue.shade700,
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        child: Center(
-          child: SingleChildScrollView(
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Formulario de nuevo residente
-                      Text(
-                        "Registrar Nuevo Residente",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Título: Registrar Nuevo Residente
+                  _buildSectionTitle("Registrar Nuevo Residente"),
+                  const SizedBox(height: 10),
+                  // Campos del formulario
+                  _buildInputField(controller: _nombreController, labelText: "Nombre", icon: Icons.person),
+                  _buildInputField(controller: _apellidoController, labelText: "Apellido", icon: Icons.family_restroom),
+                  _buildInputField(controller: _rutController, labelText: "RUT", icon: Icons.badge),
+                  _buildInputField(controller: _correoController, labelText: "Correo", icon: Icons.email),
+                  _buildInputField(controller: _torreController, labelText: "Torre", icon: Icons.apartment, keyboardType: TextInputType.number),
+                  _buildInputField(controller: _departamentoController, labelText: "Departamento", icon: Icons.format_list_numbered, keyboardType: TextInputType.number),
+                  const SizedBox(height: 20),
+
+                  // Botón: Guardar Residente
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _guardarResidente,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 8,
+                        shadowColor: Colors.black.withOpacity(0.2),
                       ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: _nombreController,
-                        decoration: InputDecoration(labelText: "Nombre"),
+                      child: const Text(
+                        "Guardar Residente",
+                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      TextField(
-                        controller: _apellidoController,
-                        decoration: InputDecoration(labelText: "Apellido"),
-                      ),
-                      TextField(
-                        controller: _rutController,
-                        decoration: InputDecoration(labelText: "RUT"),
-                      ),
-                      TextField(
-                        controller: _correoController,
-                        decoration: InputDecoration(labelText: "Correo"),
-                      ),
-                      TextField(
-                        controller: _torreController,
-                        decoration: InputDecoration(labelText: "Torre"),
-                        keyboardType: TextInputType.number,
-                      ),
-                      TextField(
-                        controller: _departamentoController,
-                        decoration: InputDecoration(labelText: "Departamento"),
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: 20),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _guardarResidente,
-                          style: ElevatedButton.styleFrom(
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Título: Lista de Residentes
+                  _buildSectionTitle("Lista de Residentes"),
+                  const SizedBox(height: 10),
+
+                  // Lista de Residentes
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: currentResidents.length,
+                    itemBuilder: (context, index) {
+                      final residente = currentResidents[index];
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
                             backgroundColor: Colors.blue.shade700,
-                            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            child: Text(
+                              residente['nombre'][0].toUpperCase(),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          child: Text(
-                            "Guardar Residente",
-                            style: TextStyle(color: Colors.white), // Asegura que el texto sea blanco
+                          title: Text(
+                            '${residente['nombre']} ${residente['apellido']}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text('RUT: ${residente['rut']}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditResidenteForm(residente: residente),
+                                    ),
+                                  ).then((_) {
+                                    _fetchResidentes();
+                                  });
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  // Código de eliminación
+                                },
+                              ),
+                            ],
                           ),
                         ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Paginación
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _previousPage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 8,
+                        ),
+                        child: const Text(
+                          "Anterior",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      SizedBox(height: 20),
-                      // Lista de residentes con paginación
                       Text(
-                        "Lista de Residentes",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+                        'Página ${currentPage + 1} de ${((residentes.length - 1) / itemsPerPage).ceil() + 1}',
+                        style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
                       ),
-                      SizedBox(height: 10),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: currentResidents.length,
-                        itemBuilder: (context, index) {
-                          final residente = currentResidents[index];
-                          final username = '${residente['nombre'][0].toLowerCase()}${residente['apellido'].toLowerCase()}';
-
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            elevation: 5,
-                            child: ListTile(
-                              title: Text(
-                                '${residente['nombre']} ${residente['apellido']}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Text('RUT: ${residente['rut']}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => EditResidenteForm(residente: residente),
-                                        ),
-                                      ).then((_) {
-                                        _fetchResidentes(); // Actualizar la lista después de editar
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      // Código de eliminación existente
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: _previousPage,
-                            child: Text(
-                              "Anterior",
-                              style: TextStyle(color: Colors.blue.shade700),
-                            ),
+                      ElevatedButton(
+                        onPressed: _nextPage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                          Text(
-                            'Página ${currentPage + 1} de ${((residentes.length - 1) / itemsPerPage).ceil() + 1}',
-                          ),
-                          ElevatedButton(
-                            onPressed: _nextPage,
-                            child: Text(
-                              "Siguiente",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade700,
-                            ),
-                          ),
-                        ],
+                          elevation: 8,
+                        ),
+                        child: const Text(
+                          "Siguiente",
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+// Método para construir campos de entrada con bordes redondeados y sombra
+Widget _buildInputField({
+  required TextEditingController controller,
+  required String labelText,
+  required IconData icon,
+  TextInputType keyboardType = TextInputType.text,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(icon, color: Colors.blue.shade700),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      ),
+    ),
+  );
+}
+
+// Método para construir títulos de sección estilizados
+Widget _buildSectionTitle(String title) {
+  return Text(
+    title,
+    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue.shade700),
+    textAlign: TextAlign.center,
+  );
+}
+
 }

@@ -87,165 +87,209 @@ class _FormVisita1State extends State<FormVisita1> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Registrar Visita"),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        "Registrar Visita",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
+      backgroundColor: Colors.blue.shade700,
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        "Información de Visita",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Título
+                    Text(
+                      "Información de Visita",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade700,
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Radio<String>(
-                            value: 'casa',
-                            groupValue: tipoResidencia,
-                            onChanged: (value) {
-                              setState(() {
-                                tipoResidencia = value!;
-                                torreController.text = '0';
-                              });
-                            },
-                          ),
-                          const Text('Casa'),
-                          Radio<String>(
-                            value: 'departamento',
-                            groupValue: tipoResidencia,
-                            onChanged: (value) {
-                              setState(() {
-                                tipoResidencia = value!;
-                                torreController.clear();
-                              });
-                            },
-                          ),
-                          const Text('Departamento'),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: torreController,
-                              enabled: tipoResidencia == 'departamento',
-                              decoration: InputDecoration(
-                                hintText: 'Torre',
-                                labelText: 'Torre',
-                                prefixIcon: Icon(Icons.apartment, color: Colors.grey),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onChanged: (_) => _buscarResidente(),
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: TextFormField(
-                              controller: numeroDomicilioController,
-                              decoration: InputDecoration(
-                                hintText: 'Número Domicilio',
-                                labelText: 'Número Domicilio',
-                                prefixIcon: Icon(Icons.format_list_numbered, color: Colors.grey),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onChanged: (_) => _buscarResidente(),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: primerNombreController,
-                        decoration: InputDecoration(
-                          hintText: 'Nombre',
-                          labelText: 'Nombre',
-                          prefixIcon: Icon(Icons.person, color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Opciones de residencia
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Radio<String>(
+                          value: 'casa',
+                          groupValue: tipoResidencia,
+                          onChanged: (value) {
+                            setState(() {
+                              tipoResidencia = value!;
+                              torreController.text = '0';
+                            });
+                          },
+                        ),
+                        const Text(
+                          'Casa',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Radio<String>(
+                          value: 'departamento',
+                          groupValue: tipoResidencia,
+                          onChanged: (value) {
+                            setState(() {
+                              tipoResidencia = value!;
+                              torreController.clear();
+                            });
+                          },
+                        ),
+                        const Text(
+                          'Departamento',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Campos de Torre y Número de Domicilio
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInputField(
+                            controller: torreController,
+                            hintText: 'Torre',
+                            labelText: 'Torre',
+                            icon: Icons.apartment,
+                            enabled: tipoResidencia == 'departamento',
                           ),
                         ),
-                        readOnly: true,
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: apellidosController,
-                        decoration: InputDecoration(
-                          hintText: 'Apellido',
-                          labelText: 'Apellido',
-                          prefixIcon: Icon(Icons.family_restroom, color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildInputField(
+                            controller: numeroDomicilioController,
+                            hintText: 'Número Domicilio',
+                            labelText: 'Número Domicilio',
+                            icon: Icons.format_list_numbered,
                           ),
                         ),
-                        readOnly: true,
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: correoController,
-                        decoration: InputDecoration(
-                          hintText: 'Correo',
-                          labelText: 'Correo',
-                          prefixIcon: Icon(Icons.email, color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Campos de Nombre, Apellido y Correo
+                    _buildInputField(
+                      controller: primerNombreController,
+                      hintText: 'Nombre',
+                      labelText: 'Nombre',
+                      icon: Icons.person,
+                      readOnly: true,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInputField(
+                      controller: apellidosController,
+                      hintText: 'Apellido',
+                      labelText: 'Apellido',
+                      icon: Icons.family_restroom,
+                      readOnly: true,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInputField(
+                      controller: correoController,
+                      hintText: 'Correo',
+                      labelText: 'Correo',
+                      icon: Icons.email,
+                      readOnly: true,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Botón de Continuar
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _continuar,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 8,
+                          shadowColor: Colors.black.withOpacity(0.2),
+                        ),
+                        child: const Text(
+                          "Continuar",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        readOnly: true,
                       ),
-                      const SizedBox(height: 30),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _continuar,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            "Continuar",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+// Método reutilizable para construir campos de entrada con sombra y bordes redondeados
+Widget _buildInputField({
+  required TextEditingController controller,
+  required String hintText,
+  required String labelText,
+  required IconData icon,
+  bool enabled = true,
+  bool readOnly = false,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: TextFormField(
+      controller: controller,
+      enabled: enabled,
+      readOnly: readOnly,
+      decoration: InputDecoration(
+        hintText: hintText,
+        labelText: labelText,
+        prefixIcon: Icon(icon, color: Colors.blue.shade700),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      ),
+      style: const TextStyle(fontSize: 16),
+    ),
+  );
+}
+
 }

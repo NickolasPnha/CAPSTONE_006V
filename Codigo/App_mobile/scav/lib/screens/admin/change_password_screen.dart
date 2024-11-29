@@ -116,117 +116,182 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    bool isPasswordValid = hasUppercase && hasSpecialCharacter && hasNumber;
+Widget build(BuildContext context) {
+  bool isPasswordValid = hasUppercase && hasSpecialCharacter && hasNumber;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Cambiar Contraseña"),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        "Cambiar Contraseña",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
+      backgroundColor: Colors.blue.shade700,
+      centerTitle: true,
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.lightBlue.shade800, Colors.lightBlue.shade50],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Card(
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: _currentPasswordController,
-                            decoration: InputDecoration(labelText: "Contraseña actual"),
-                            obscureText: true,
-                          ),
-                          TextField(
-                            controller: _newPasswordController,
-                            decoration: InputDecoration(labelText: "Nueva contraseña"),
-                            obscureText: true,
-                            onChanged: _checkPasswordStrength,
-                          ),
-                          TextField(
-                            controller: _confirmPasswordController,
-                            decoration: InputDecoration(labelText: "Confirmar nueva contraseña"),
-                            obscureText: true,
-                          ),
-                          SizedBox(height: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Requisitos de la contraseña:",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              SizedBox(height: 10),
-                              _buildPasswordRequirement("Al menos una mayúscula", hasUppercase),
-                              _buildPasswordRequirement("Al menos un número", hasNumber),
-                              _buildPasswordRequirement("Al menos un caracter especial", hasSpecialCharacter),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-                          _isLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isPasswordValid ? Colors.blue.shade700 : Colors.grey,
-                                    padding: EdgeInsets.symmetric(vertical: 15),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  onPressed: isPasswordValid ? _changePassword : null,
-                                  child: Center(
-                                    child: Text(
-                                      "Actualizar contraseña",
-                                      style: TextStyle(fontSize: 18, color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                        ],
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        "Actualiza tu contraseña",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade700,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+
+                    // Campo: Contraseña actual
+                    _buildPasswordField(
+                      controller: _currentPasswordController,
+                      labelText: "Contraseña actual",
+                    ),
+
+                    // Campo: Nueva contraseña
+                    _buildPasswordField(
+                      controller: _newPasswordController,
+                      labelText: "Nueva contraseña",
+                      onChanged: _checkPasswordStrength,
+                    ),
+
+                    // Campo: Confirmar contraseña
+                    _buildPasswordField(
+                      controller: _confirmPasswordController,
+                      labelText: "Confirmar nueva contraseña",
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Requisitos de contraseña
+                    Text(
+                      "Requisitos de la contraseña:",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildPasswordRequirement("Al menos una mayúscula", hasUppercase),
+                    _buildPasswordRequirement("Al menos un número", hasNumber),
+                    _buildPasswordRequirement("Al menos un caracter especial", hasSpecialCharacter),
+
+                    const SizedBox(height: 20),
+
+                    // Botón: Actualizar contraseña
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Center(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isPasswordValid
+                                    ? Colors.blue.shade700
+                                    : Colors.grey,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 8,
+                              ),
+                              onPressed: isPasswordValid ? _changePassword : null,
+                              child: const Text(
+                                "Actualizar contraseña",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildPasswordRequirement(String text, bool isValid) {
-    return Row(
-      children: [
-        Icon(
-          isValid ? Icons.check_circle : Icons.cancel,
-          color: isValid ? Colors.green : Colors.red,
-          size: 20,
-        ),
-        SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 16,
-            color: isValid ? Colors.green : Colors.red,
-          ),
+Widget _buildPasswordField({
+  required TextEditingController controller,
+  required String labelText,
+  Function(String)? onChanged,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
         ),
       ],
-    );
-  }
+    ),
+    child: TextField(
+      controller: controller,
+      obscureText: true,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.grey.shade600),
+        prefixIcon: const Icon(Icons.lock, color: Colors.blue),
+        border: InputBorder.none,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      ),
+    ),
+  );
+}
+
+Widget _buildPasswordRequirement(String text, bool isValid) {
+  return Row(
+    children: [
+      Icon(
+        isValid ? Icons.check_circle : Icons.cancel,
+        color: isValid ? Colors.green : Colors.red,
+        size: 20,
+      ),
+      const SizedBox(width: 8),
+      Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: isValid ? Colors.green : Colors.red,
+        ),
+      ),
+    ],
+  );
+}
+
 }
